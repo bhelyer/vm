@@ -1,5 +1,6 @@
 module pinot_asm.token;
 
+import watt.conv;
 import watt.text.ascii;
 
 class Token
@@ -25,6 +26,7 @@ public:
 
     type: Type;
     value: string;
+    ivalue: u64;
 }
 
 fn lex(str: string) Token[]
@@ -44,6 +46,13 @@ fn lex(str: string) Token[]
             continue;
         }
 
+        if (c == '0' && i + 1 != str.length && str[i + 1] == 'x')
+        {
+            i += 2; // Skip "0x"
+            tokens ~= lexHexLiteral(str, ref i);
+            continue;
+        }
+
         if (c == '"')
         {
             tokens ~= lexString(str, ref i);
@@ -59,7 +68,7 @@ fn lex(str: string) Token[]
             tokens ~= new Token(Token.Type.Comma, str[i .. i + 1]);
             break;
         default:
-            tokens ~= new Token(Token.Type.Error, str[i .. $]);
+            tokens ~= new Token(Token.Type.Error, "Unexpected: " ~ str[i .. $]);
             return tokens;
         }
 
@@ -74,7 +83,7 @@ fn lexFromLetter(str: string, ref i: size_t) Token
 {
     start_i := i;
 
-    while (isAlpha(str[i]) && i < str.length)
+    while (isAlphaNum(str[i]) && i < str.length)
     {
         ++i;
     }
@@ -99,4 +108,24 @@ fn lexString(str: string, ref i: size_t) Token
     word := str[start_i .. i];
     ++i; // Skip the last quote.
     return new Token(Token.Type.StringLiteral, word);
+}
+
+fn lexHexLiteral(str: string, ref i: size_t) Token
+{
+    start_i := i;
+    while (i < str.length && isHexDigit(str[i]))
+    {
+        ++i;
+    }
+    word := str[start_i .. i];
+    try
+    {
+        token := new Token(Token.Type.IntegerLiteral, word);
+        token.ivalue = toUlong(word, 16);
+        return token;
+    }
+    catch (ConvException)
+    {
+        return new Token(Token.Type.Error, "Int parse failure: " ~ word);
+    }
 }
