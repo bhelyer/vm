@@ -3,18 +3,29 @@ project(pinot)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 13.3)
 
+# Enable all warnings and treat warnings as errors for the given target.
+function(target_enable_warnings target)
+    if (MSVC)
+        target_compile_options(${target} PRIVATE /W4 /WX)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror)
+    endif()
+endfunction()
+
 add_library(
     pinot
     lib/Pinot/Exceptions.h
     lib/Pinot/Memory.cpp lib/Pinot/Memory.h
     lib/Pinot/VM.cpp lib/Pinot/VM.h
 )
-
+target_enable_warnings(pinot)
 target_include_directories(pinot PUBLIC lib)
 
 add_executable(
     vm
     src/main.cpp
 )
-
+target_enable_warnings(vm)
 target_link_libraries(vm PRIVATE pinot)
+
+
