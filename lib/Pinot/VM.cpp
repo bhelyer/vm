@@ -1,5 +1,7 @@
 #include "Pinot/VM.h"
 
+#include <iostream>
+
 #include "Pinot/Exceptions.h"
 #include "Pinot/Memory.h"
 
@@ -47,6 +49,27 @@ void VM::run()
             write(dst, val);
             break;
         }
+        case Op::LoadRC64:
+        {
+            const uint8_t dst_addr = read64(Register::IP);
+            const auto dst = static_cast<Register>(mem.read8(dst_addr));
+            write(Register::IP, dst_addr + 1);
+
+            const auto val_addr = dst_addr + 1;
+            const auto val = mem.read64(val_addr);
+            write(Register::IP, val_addr + sizeof(uint64_t));
+            write(dst, val);
+
+            break;
+        }
+        case Op::Interrupt:
+        {
+            const uint64_t val_addr = read64(Register::IP);
+            const uint8_t val = mem.read8(val_addr);
+            write(Register::IP, val_addr + 1);
+            interrupt(val);
+            break;
+        }
         default:
             throw UnknownInstructionException(op_byte);
         }
@@ -71,6 +94,36 @@ void VM::write(Register reg, uint64_t value)
         throw WriteException();
     }
     regs[index] = value;
+}
+
+void VM::interrupt(uint8_t value)
+{
+    if (value != PINOT_BUILTIN)
+    {
+        return;
+    }
+    const uint64_t builtin_no = read64(Register::R0);
+    switch (static_cast<Builtin>(builtin_no)) {
+    case Builtin::Print: builtin_print(); break;
+    default: break;
+    }
+}
+
+void VM::builtin_print()
+{
+    uint64_t str_addr = read64(Register::R1);
+    uint64_t len = read64(Register::R2);
+    const bool newline = read64(Register::R3) != 0;
+
+    for (; len > 0; --len)
+    {
+        std::cout << mem.read8(str_addr);
+        ++str_addr;
+    }
+    if (newline)
+    {
+        std::cout << '\n';
+    }
 }
 
 } // namespace Pinot

@@ -31,12 +31,21 @@ public:
     /// @throw ReadException If `addr` is out of bounds.
     [[nodiscard]] uint8_t read8(size_t addr) const;
 
+    // Read a u64 (little endian) of memory.
+    /// @param addr The address to read from.
+    /// @return The u64 at `addr`.
+    /// @throw ReadException If `addr` is out of bounds.
+    [[nodiscard]] uint64_t read64(size_t addr) const;
+
 private:
     // If `addr` is out of bounds, throw a WriteException.
     void validateWrite(size_t addr) const;
 
     // If `addr` is out of bounds, throw a ReadException.
     void validateRead(size_t addr) const;
+
+    // If `addr` or `addr + bytes - 1` is out of bounds, throw a ReadException.
+    void validateReadRange(size_t addr, size_t bytes) const;
 };
 
 } // namespace Pinot

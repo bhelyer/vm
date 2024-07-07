@@ -14,7 +14,9 @@ enum class Op : uint8_t
 {
     Nop,        ///< Do nothing.
     Halt,       ///< Halt execution.
-    LoadRC8,     ///< load <reg>, <constant u8>
+    LoadRC8,    ///< load <reg>, <constant u8>
+    LoadRC64,   ///< load <reg>, <constant u64>
+    Interrupt,  ///< interrupt <constant u8>
     Max,        ///< Do not use.
 };
 
@@ -57,6 +59,15 @@ enum class Register : uint8_t
     Max,        ///< Do not use.
 };
 
+constexpr uint8_t PINOT_BUILTIN = 0;
+
+// When `interrupt 0` is run, the value in r0 identifies the operation.
+enum class Builtin : uint64_t
+{
+    /// r0=0, r1=pointer to string, r2=string length, r3=!0 to append newline
+    Print,
+};
+
 class VM final
 {
     Memory& mem;
@@ -80,7 +91,12 @@ public:
     /// @throws WriteException The register given was invalid.
     void write(Register reg, uint64_t value);
 
+    /// Invoked when the interrupt instruction is run.
+    /// @param value The constant byte given to the interrupt instruction.
+    virtual void interrupt(uint8_t value);
+
 private:
+    void builtin_print();
 };
 
 } // namespace Pinot

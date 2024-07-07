@@ -33,6 +33,14 @@ class ReadException final : public Exception
 {
 public:
     ReadException() : Exception("Tried to read out of bounds.") {}
+
+    explicit ReadException(size_t addr) : Exception(std::format(
+        "Tried to read out of bounds @ 0x{:x}", addr
+    )) {}
+
+    ReadException(size_t addr, size_t bytes) : Exception(std::format(
+        "Tried to read out of bounds: {} bytes @ 0x{:x}", bytes, addr
+    )) {}
 };
 
 class UnknownInstructionException final : public Exception
