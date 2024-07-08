@@ -12,10 +12,17 @@ int main(args: string[])
         error.writefln("Usage: %s asm_file", args[0]);
         return 1;
     }
-    tokens: Token[] = lex(cast(string)read(args[1]));
+    tokens: Token[] = lex(args[1], cast(string)read(args[1]));
     foreach (token; tokens)
     {
-        writefln("TOKEN: %s, %s (%s)", token.type, token.value, token.ivalue);
+        if (token.type == Token.Type.Error)
+        {
+            error.writefln("Error: %s:%s: %s", token.loc.filename, token.loc.line, token.value);
+        }
+        else
+        {
+            writefln("TOKEN: %s, %s (%s)", token.type, token.value, token.ivalue);
+        }
     }
     return 0;
 }

@@ -3,6 +3,8 @@ module pinot_asm.token;
 import watt.conv;
 import watt.text.ascii;
 
+import pinot_asm.location;
+
 class Token
 {
 public:
@@ -24,18 +26,26 @@ public:
         this.value = value;
     }
 
+    loc: Location;
     type: Type;
     value: string;
     ivalue: u64;
 }
 
-fn lex(str: string) Token[]
+fn lex(filename: string, str: string) Token[]
 {
+    Location current_loc;
+    current_loc.filename = filename;
+    current_loc.line = 1;
     tokens: Token[];
     for (i: size_t = 0; i < str.length; /* no increment */)
     {
         while (isWhite(str[i]))
         {
+            if (str[i] == '\n')
+            {
+                current_loc.line++;
+            }
             ++i;
         }
         c := str[i];
@@ -43,6 +53,7 @@ fn lex(str: string) Token[]
         if (isAlpha(c))
         {
             tokens ~= lexFromLetter(str, ref i);
+            tokens[$ - 1].loc = current_loc;
             continue;
         }
 
@@ -50,18 +61,21 @@ fn lex(str: string) Token[]
         {
             i += 2; // Skip "0x"
             tokens ~= lexHexLiteral(str, ref i);
+            tokens[$ - 1].loc = current_loc;
             continue;
         }
 
         if (isDigit(c))
         {
             tokens ~= lexIntLiteral(str, ref i);
+            tokens[$ - 1].loc = current_loc;
             continue;
         }
 
         if (c == '"')
         {
             tokens ~= lexString(str, ref i);
+            tokens[$ - 1].loc = current_loc;
             continue;
         }
 
@@ -69,15 +83,19 @@ fn lex(str: string) Token[]
         {
         case '=':
             tokens ~= new Token(Token.Type.Equal, str[i .. i + 1]);
+            tokens[$ - 1].loc = current_loc;
             break;
         case ',':
             tokens ~= new Token(Token.Type.Comma, str[i .. i + 1]);
+            tokens[$ - 1].loc = current_loc;
             break;
         case '.':
             tokens ~= new Token(Token.Type.Dot, str[i .. i + 1]);
+            tokens[$ - 1].loc = current_loc;
             break;
         default:
             tokens ~= new Token(Token.Type.Error, "Unexpected: " ~ str[i .. $]);
+            tokens[$ - 1].loc = current_loc;
             return tokens;
         }
 
