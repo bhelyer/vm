@@ -53,6 +53,12 @@ fn lex(str: string) Token[]
             continue;
         }
 
+        if (isDigit(c))
+        {
+            tokens ~= lexIntLiteral(str, ref i);
+            continue;
+        }
+
         if (c == '"')
         {
             tokens ~= lexString(str, ref i);
@@ -122,6 +128,26 @@ fn lexHexLiteral(str: string, ref i: size_t) Token
     {
         token := new Token(Token.Type.IntegerLiteral, word);
         token.ivalue = toUlong(word, 16);
+        return token;
+    }
+    catch (ConvException)
+    {
+        return new Token(Token.Type.Error, "Int parse failure: " ~ word);
+    }
+}
+
+fn lexIntLiteral(str: string, ref i: size_t) Token
+{
+    start_i := i;
+    while (i < str.length && isDigit(str[i]))
+    {
+        ++i;
+    }
+    word := str[start_i .. i];
+    try
+    {
+        token := new Token(Token.Type.IntegerLiteral, word);
+        token.ivalue = toUlong(word, 10);
         return token;
     }
     catch (ConvException)
