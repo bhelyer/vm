@@ -15,7 +15,7 @@ public:
         Const,
         Equal,
         Comma,
-        Length, // identifier.length
+        Dot,
     }
 
     this(type: Token.Type, value: string)
@@ -72,6 +72,9 @@ fn lex(str: string) Token[]
             break;
         case ',':
             tokens ~= new Token(Token.Type.Comma, str[i .. i + 1]);
+            break;
+        case '.':
+            tokens ~= new Token(Token.Type.Dot, str[i .. i + 1]);
             break;
         default:
             tokens ~= new Token(Token.Type.Error, "Unexpected: " ~ str[i .. $]);
