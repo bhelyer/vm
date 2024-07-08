@@ -17,7 +17,7 @@ int main(args: string[])
     {
         if (token.type == Token.Type.Error)
         {
-            error.writefln("Error: %s:%s: %s", token.loc.filename, token.loc.line, token.value);
+            error.writefln("%s:%s: error: %s", token.loc.filename, token.loc.line, token.value);
         }
         else
         {

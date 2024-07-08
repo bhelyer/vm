@@ -2,6 +2,7 @@ module pinot_asm.token;
 
 import watt.conv;
 import watt.text.ascii;
+import watt.text.format;
 
 import pinot_asm.location;
 
@@ -94,7 +95,7 @@ fn lex(filename: string, str: string) Token[]
             tokens[$ - 1].loc = current_loc;
             break;
         default:
-            tokens ~= new Token(Token.Type.Error, "Unexpected: " ~ str[i .. $]);
+            tokens ~= new Token(Token.Type.Error, format("Unexpected character: '%s'.", str[i]));
             tokens[$ - 1].loc = current_loc;
             return tokens;
         }
