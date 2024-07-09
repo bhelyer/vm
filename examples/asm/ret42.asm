@@ -1,2 +1,2 @@
-load r0, 42
-halt
+ld r0, 42
+hlt
