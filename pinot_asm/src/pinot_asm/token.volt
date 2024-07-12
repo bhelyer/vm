@@ -15,7 +15,6 @@ public:
         Identifier,
         StringLiteral,
         IntegerLiteral,
-        Const,
         Equal,
         Comma,
         Dot,
@@ -23,6 +22,13 @@ public:
 
     this(type: Token.Type, value: string)
     {
+        this.type = type;
+        this.value = value;
+    }
+
+    this(loc: Location, type: Token.Type, value: string)
+    {
+        this.loc = loc;
         this.type = type;
         this.value = value;
     }
@@ -41,13 +47,16 @@ fn lex(filename: string, str: string) Token[]
     tokens: Token[];
     for (i: size_t = 0; i < str.length; /* no increment */)
     {
-        while (isWhite(str[i]))
+        while (i < str.length && isWhite(str[i]))
         {
             if (str[i] == '\n')
             {
                 current_loc.line++;
             }
             ++i;
+        }
+        if (i >= str.length) {
+            break;
         }
         c := str[i];
 
@@ -95,7 +104,7 @@ fn lex(filename: string, str: string) Token[]
             tokens[$ - 1].loc = current_loc;
             break;
         default:
-            tokens ~= new Token(Token.Type.Error, format("Unexpected character: '%s'.", str[i]));
+            tokens ~= new Token(Token.Type.Error, format("Unexpected character: '%s' (Integer: %s)", c, cast(int)c));
             tokens[$ - 1].loc = current_loc;
             return tokens;
         }
@@ -116,14 +125,7 @@ fn lexFromLetter(str: string, ref i: size_t) Token
         ++i;
     }
     word := str[start_i .. i];
-    if (word == "const")
-    {
-        return new Token(Token.Type.Const, word);
-    }
-    else
-    {
-        return new Token(Token.Type.Identifier, word);
-    }
+    return new Token(Token.Type.Identifier, word);
 }
 
 fn lexString(str: string, ref i: size_t) Token
