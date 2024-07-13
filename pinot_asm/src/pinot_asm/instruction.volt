@@ -4,6 +4,7 @@ import core.exception;
 import watt.text.string;
 
 import pinot_asm.location;
+import pinot_asm.register;
 
 abstract class Inst {
     abstract fn toBytes() u8[];
@@ -44,5 +45,20 @@ class NopInst : Inst {
 class HltInst : Inst {
     override fn toBytes() u8[] {
         return [cast(u8)0x01];
+    }
+}
+
+class LdInst : Inst {
+private:
+    bytes: u8[];
+
+public:
+    // Load a register with a constant u8 value.
+    this(dst: Register, value: u8) {
+        bytes = [cast(u8)0x02, cast(u8)dst, value];
+    }
+
+    override fn toBytes() u8[] {
+        return bytes;
     }
 }
