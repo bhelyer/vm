@@ -3,9 +3,11 @@ project(pinot)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 13.3)
 
+find_package(GTest)
+
 # Enable all warnings and treat warnings as errors for the given target.
 function(target_enable_warnings target)
-    if (MSVC)
+    if(MSVC)
         target_compile_options(${target} PRIVATE /W4 /WX)
     else()
         target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror)
@@ -28,4 +30,20 @@ add_executable(
 target_enable_warnings(vm)
 target_link_libraries(vm PRIVATE pinot)
 
-
+if(GTest_FOUND)
+    message("Found GTest, creating tests.")
+    enable_testing()
+    add_executable(
+        vm.test
+        test/VM.Test.cpp
+    )
+    target_link_libraries(
+        vm.test
+        PRIVATE
+        GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
+        pinot
+    )
+    add_test(vm.test vm.test)
+else()
+    message("Didn't find GTest, not creating tests.")
+endif()
