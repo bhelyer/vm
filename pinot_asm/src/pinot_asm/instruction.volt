@@ -38,13 +38,13 @@ public:
 
 class NopInst : Inst {
     override fn toBytes() u8[] {
-        return [cast(u8)0x00];
+        return [0x00_u8];
     }
 }
 
 class HltInst : Inst {
     override fn toBytes() u8[] {
-        return [cast(u8)0x01];
+        return [0x01_u8];
     }
 }
 
