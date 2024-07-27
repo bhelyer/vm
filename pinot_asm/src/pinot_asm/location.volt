@@ -1,7 +1,6 @@
 module pinot_asm.location;
 
-struct Location
-{
+struct Location {
 	filename: string;
 	line: i32;
 }
