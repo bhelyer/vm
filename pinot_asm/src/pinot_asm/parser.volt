@@ -23,7 +23,7 @@ fn parse(tokens: Token[]) Inst[] {
 			isink.sink(parseLd(tokens, ref index));
 			break;
 		default:
-			isink.sink(new ErrorInst(format("Unexpected token: %s.", tokens[index].type)));
+			isink.sink(new ErrorInst(format("Unexpected token: %s.", tokens[index])));
 			return isink.toArray();
 		}
 	}
@@ -35,7 +35,7 @@ private:
 fn expectIdent(str: string, tokens: Token[], ref index: size_t) {
 	next := tokens[index];
 	if (next.type != Token.Type.Identifier || next.value != str) {
-		throw new Exception(format("Unexpected token: '%s'.", next.value));
+		throw new Exception(format("Unexpected token: '%s'.", next));
 	}
 	++index;
 }
@@ -43,7 +43,7 @@ fn expectIdent(str: string, tokens: Token[], ref index: size_t) {
 fn expect(type: Token.Type, tokens: Token[], ref index: size_t) Token {
 	next := tokens[index];
 	if (next.type != type) {
-		throw new Exception(format("Unexpected token: '%s'.", next.value));
+		throw new Exception(format("Unexpected token: '%s'.", next));
 	}
 	++index;
 	return next;

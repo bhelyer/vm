@@ -29,6 +29,10 @@ public:
 		this.value = value;
 	}
 
+	override fn toString() string {
+		return value;
+	}
+
 	loc: Location;
 	type: Type;
 	value: string;
