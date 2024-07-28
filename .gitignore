@@ -1,3 +1,4 @@
 /.vscode
 /*build*
 *.battery*
+/pinot_asm/pinot_asm
