@@ -38,17 +38,22 @@ int main(args: string[]) {
 		}
 	}
 
-	// Pass 2: Emit bytes.
-	bsink: ByteSink;
+	// Pass 2: Emit code instructions.
+	codeSink: ByteSink;
+	dataSink: ByteSink;
 	foreach (inst; insts) {
 		if (inst.isError()) {
 			error.writefln("? %s", inst.toString());
 			return 1;
 		}
-		bsink.append(inst.toBytes(syms));
+		if (inst.storage) {
+			dataSink.append(inst.toBytes(syms));
+		} else {
+			codeSink.append(inst.toBytes(syms));
+		}
 	}
 
 	// Write the bytes into an output file.
-	write(cast(void[])bsink.toArray(), "a.bin");
+	write(cast(void[])(codeSink.toArray() ~ dataSink.toArray()), "a.bin");
 	return 0;
 }

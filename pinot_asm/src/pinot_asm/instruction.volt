@@ -13,6 +13,11 @@ abstract class Inst {
 	// Get the representation of this instruction.
 	abstract fn toBytes(syms: Symbols) u8[];
 
+	// How many bytes does this instruction take up?
+	@property fn length() size_t {
+		return 0;
+	}
+
 	// Does this instruction represent an error?
 	fn isError() bool {
 		return false;
@@ -21,6 +26,11 @@ abstract class Inst {
 	// If this string is non-empty, this label points at this instruction.
 	@property fn label() string {
 		return "";
+	}
+
+	// If true, this instruction is storage (and should be emitted last).
+	@property fn storage() bool {
+		return false;
 	}
 }
 
@@ -50,11 +60,19 @@ class NopInst : Inst {
 	override fn toBytes(syms: Symbols) u8[] {
 		return [0x00_u8];
 	}
+
+	override @property fn length() size_t {
+		return 1;
+	}
 }
 
 class HltInst : Inst {
 	override fn toBytes(syms: Symbols) u8[] {
 		return [0x01_u8];
+	}
+
+	override @property fn length() size_t {
+		return 1;
 	}
 }
 
@@ -70,6 +88,10 @@ public:
 
 	override fn toBytes(syms: Symbols) u8[] {
 		return bytes;
+	}
+
+	override @property fn length() size_t {
+		return bytes.length;
 	}
 }
 
@@ -88,7 +110,15 @@ public:
 		return bytes;
 	}
 
+	override @property fn length() size_t {
+		return bytes.length;
+	}
+
 	override @property fn label() string {
 		return name;
+	}
+
+	override @property fn storage() bool {
+		return true;
 	}
 }
