@@ -22,6 +22,9 @@ fn parse(tokens: Token[]) Inst[] {
 		case "ld":
 			isink.sink(parseLd(tokens, ref index));
 			break;
+		case "const":
+			isink.sink(parseConst(tokens, ref index));
+			break;
 		default:
 			isink.sink(new ErrorInst(format("Unexpected token: %s.", tokens[index])));
 			return isink.toArray();
@@ -60,6 +63,23 @@ fn parseLd(tokens: Token[], ref index: size_t) Inst {
 			return new ErrorInst("Unimplemented: loading large integers.");
 		}
 		return new LdInst(dstTok.value.toRegister(), cast(u8)srcTok.ivalue);
+	} catch (Exception e) {
+		return new ErrorInst(e.msg);
+	}
+	assert(false);
+}
+
+fn parseConst(tokens: Token[], ref index: size_t) Inst {
+	try {
+		expectIdent("const", tokens, ref index);
+		nameTok := expect(Token.Type.Identifier, tokens, ref index);
+		expect(Token.Type.Equal, tokens, ref index);
+		valueTok := expect(Token.Type.StringLiteral, tokens, ref index);
+		value := new u8[](valueTok.value.length);
+		for (i: size_t = 0; i < valueTok.value.length; ++i) {
+			value[i] = cast(u8)valueTok.value[i];
+		}
+		return new ConstInst(nameTok.value, value);
 	} catch (Exception e) {
 		return new ErrorInst(e.msg);
 	}

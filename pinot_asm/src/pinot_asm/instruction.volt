@@ -6,11 +6,20 @@ import watt.text.string;
 import pinot_asm.location;
 import pinot_asm.register;
 
+// Individual components of an assembly program.
+// These don't always correspond to actual instructions.
 abstract class Inst {
+	// Get the representation of this instruction.
 	abstract fn toBytes() u8[];
 
+	// Does this instruction represent an error?
 	fn isError() bool {
 		return false;
+	}
+
+	// If this string is non-empty, this label points at this instruction.
+	@property fn label() string {
+		return "";
 	}
 }
 
@@ -60,5 +69,25 @@ public:
 
 	override fn toBytes() u8[] {
 		return bytes;
+	}
+}
+
+class ConstInst : Inst {
+private:
+	name: string;
+	bytes: u8[];
+
+public:
+	this(name: string, value: u8[]) {
+		this.name = name;
+		this.bytes = value;
+	}
+
+	override fn toBytes() u8[] {
+		return bytes;
+	}
+
+	override @property fn label() string {
+		return name;
 	}
 }
