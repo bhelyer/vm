@@ -5,12 +5,13 @@ import watt.text.string;
 
 import pinot_asm.location;
 import pinot_asm.register;
+import pinot_asm.symbols;
 
 // Individual components of an assembly program.
 // These don't always correspond to actual instructions.
 abstract class Inst {
 	// Get the representation of this instruction.
-	abstract fn toBytes() u8[];
+	abstract fn toBytes(syms: Symbols) u8[];
 
 	// Does this instruction represent an error?
 	fn isError() bool {
@@ -40,19 +41,19 @@ public:
 		return "Error: " ~ message;
 	}
 
-	override fn toBytes() u8[] {
+	override fn toBytes(syms: Symbols) u8[] {
 		throw new Exception("Tried to convert ErrorInst to bytes.");
 	}
 }
 
 class NopInst : Inst {
-	override fn toBytes() u8[] {
+	override fn toBytes(syms: Symbols) u8[] {
 		return [0x00_u8];
 	}
 }
 
 class HltInst : Inst {
-	override fn toBytes() u8[] {
+	override fn toBytes(syms: Symbols) u8[] {
 		return [0x01_u8];
 	}
 }
@@ -67,7 +68,7 @@ public:
 		bytes = [cast(u8)0x02, cast(u8)dst, value];
 	}
 
-	override fn toBytes() u8[] {
+	override fn toBytes(syms: Symbols) u8[] {
 		return bytes;
 	}
 }
@@ -83,7 +84,7 @@ public:
 		this.bytes = value;
 	}
 
-	override fn toBytes() u8[] {
+	override fn toBytes(syms: Symbols) u8[] {
 		return bytes;
 	}
 
