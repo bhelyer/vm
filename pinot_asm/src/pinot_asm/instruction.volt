@@ -10,6 +10,10 @@ import pinot_asm.symbols;
 // Individual components of an assembly program.
 // These don't always correspond to actual instructions.
 abstract class Inst {
+	this(loc: Location) {
+		this.loc = loc;
+	}
+
 	// Get the representation of this instruction.
 	abstract fn toBytes(syms: Symbols) u8[];
 
@@ -32,6 +36,8 @@ abstract class Inst {
 	@property fn storage() bool {
 		return false;
 	}
+
+	loc: Location;
 }
 
 class ErrorInst : Inst {
@@ -39,7 +45,8 @@ private:
 	message: string;
 
 public:
-	this(string message) {
+	this(loc: Location, string message) {
+		super(loc);
 		this.message = message;
 	}
 
@@ -57,6 +64,10 @@ public:
 }
 
 class NopInst : Inst {
+	this(loc: Location) {
+		super(loc);
+	}
+
 	override fn toBytes(syms: Symbols) u8[] {
 		return [0x00_u8];
 	}
@@ -67,6 +78,10 @@ class NopInst : Inst {
 }
 
 class HltInst : Inst {
+	this(loc: Location) {
+		super(loc);
+	}
+
 	override fn toBytes(syms: Symbols) u8[] {
 		return [0x01_u8];
 	}
@@ -82,7 +97,8 @@ private:
 
 public:
 	// Load a register with a constant u8 value.
-	this(dst: Register, value: u8) {
+	this(loc: Location, dst: Register, value: u8) {
+		super(loc);
 		bytes = [cast(u8)0x02, cast(u8)dst, value];
 	}
 
@@ -101,7 +117,8 @@ private:
 	bytes: u8[];
 
 public:
-	this(name: string, value: u8[]) {
+	this(loc: Location, name: string, value: u8[]) {
+		super(loc);
 		this.name = name;
 		this.bytes = value;
 	}
