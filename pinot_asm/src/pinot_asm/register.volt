@@ -44,6 +44,9 @@ enum Register : u8 {
 fn toRegister(str: string) Register {
 	switch (str.toLower()) {
 	case "r0": return Register.R0;
+	case "r1": return Register.R1;
+	case "r2": return Register.R2;
+	case "r3": return Register.R3;
 	// TODO: The rest of the registers.
 	default: throw new Exception("Expected register.");
 	}

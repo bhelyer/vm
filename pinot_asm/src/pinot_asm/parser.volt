@@ -61,6 +61,16 @@ fn parseLd(tokens: Token[], ref index: size_t) Inst {
 		expectIdent("ld", tokens, ref index);
 		dstTok := expect(Token.Type.Identifier, tokens, ref index);
 		expect(Token.Type.Comma, tokens, ref index);
+		next := tokens[index];
+		if (next.type == Token.Type.Identifier) {
+			symbolTok := expect(Token.Type.Identifier, tokens, ref index);
+			if (tokens[index].type == Token.Type.Dot) {
+				return new ErrorInst(loc, errorString(loc, "Unimplemented: name.length."));
+			}
+			return new LdInst(loc, dstTok.value.toRegister(), symbolTok.value);
+		}
+
+		// Loading a constant number:
 		srcTok := expect(Token.Type.IntegerLiteral, tokens, ref index);
 		// TODO: Large integers.
 		if (srcTok.ivalue >= 256) {

@@ -22,7 +22,7 @@ public:
 	fn lookup(name: string) Inst {
 		return symbols.get(name, null);
 	}
-	
+
 	fn associate(name: string, inst: Inst) {
 		symbols[name] = inst;
 	}
